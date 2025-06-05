@@ -63,16 +63,17 @@
 </body>
 </html>
 
+<script src="env.js"></script>
 <script>
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch(`${window.env.USER_SERVICE_URL}/api/user/register`, {
+        const res = await fetch(`${window.env.USER_API_URL}/api/user/register`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 name: document.getElementById('username').value,
                 password: document.getElementById('password').value,
-                confirmPassword: document.querySelector('confirmPassword').value,
+                confirmPassword: document.getElementById('confirmPassword').value,
             })
         });
 

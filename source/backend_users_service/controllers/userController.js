@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const supabase = require('../supabase');
+const supabase = require('../database/userSupabase');
 
 async function register(req, res) {
     const { name, password, confirmPassword } = req.body;

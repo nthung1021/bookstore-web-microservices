@@ -56,14 +56,16 @@
 </html>
 
 <script>
+    const BASE_USER_API_URL = process.env.BASE_USER_API_URL;
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('https://user-service.onrender.com/api/user/login', {
+        const res = await fetch(`${BASE_USER_API_URL}/api/user/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value,
+                name: document.getElementById('username').value,
+                password: document.getElementById('password').value,
             })
         });
         const data = await res.json();

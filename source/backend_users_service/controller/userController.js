@@ -2,7 +2,15 @@ const bcrypt = require('bcrypt');
 const supabase = require('../supabase');
 
 async function register(req, res) {
-    const { name, password } = req.body;
+    const { name, password, confirmPassword } = req.body;
+
+    if (!name || !password || !confirmPassword) {
+        return res.status(400).json({ error: 'Name, password and confirm password are required' });
+    }
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({ error: 'Passwords do not match' });
+    }
 
     const { data: existingUser, error: userCheckError } = await supabase
         .from('User')
@@ -25,6 +33,10 @@ async function register(req, res) {
 
 async function login(req, res) {
     const { name, password } = req.body;
+
+    if (!name || !password) {
+        return res.status(400).json({ error: 'Name and password are required' });
+    }
 
     const { data: user, error } = await supabase
         .from('User')

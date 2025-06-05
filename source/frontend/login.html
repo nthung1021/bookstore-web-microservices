@@ -56,11 +56,9 @@
 </html>
 
 <script>
-    const BASE_USER_API_URL = process.env.BASE_USER_API_URL;
-
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch(`${BASE_USER_API_URL}/api/user/login`, {
+        const res = await fetch(`${window.env.USER_SERVICE_URL}/api/user/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -69,6 +67,11 @@
             })
         });
         const data = await res.json();
-        alert(JSON.stringify(data));
+        
+        if (res.ok) {
+            window.location.href = "index.html";
+        } else {
+            alert(data.error || "Login failed. Please try again.");
+        }
     });
 </script>

@@ -98,7 +98,7 @@
         
         if (res.ok) {
             alert("Registration successful! Please login to continue.");
-            window.location.href = "login.html";
+            window.location.href = "/login";
         } else {
             alert(data.error || "Registration failed. Please try again.");
         }
@@ -107,9 +107,9 @@
     document.getElementById("accountButton").addEventListener("click", () => {
         const userId = localStorage.getItem("userId");
         if (userId) {
-        window.location.href = "user.html";
+        window.location.href = "/user";
         } else {
-        window.location.href = "login.html";
+        window.location.href = "/login";
         }
     });
 </script>

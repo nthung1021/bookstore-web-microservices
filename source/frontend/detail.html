@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Bookstore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <!-- Header -->
+    <header class="w-full flex h-16 items-center justify-between px-5 bg-green-400">
+        <div class="flex items-center gap-3">
+            <a 
+                class="text-2xl font-bold"
+                href="/">Online Bookstore
+            </a>
+        </div>
+
+        <div>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+                href="/cart">Cart
+            </a>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                href="/order">Order
+            </a>
+            <button 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                id="accountButton">Account
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto mt-10 bg-white rounded shadow p-6">
+        <div id="bookDetail" class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+        <!-- Book data will be inserted here -->
+        </div>
+    </main>
+</body>
+</html>
+
+<script src="env.js"></script>
+<script>
+    document.getElementById("accountButton").addEventListener("click", () => {
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+            window.location.href = "/user";
+        } else {
+            window.location.href = "/login";
+        }
+    });
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    async function loadBookDetail() {
+        const bookId = getQueryParam('id');
+        if (!bookId) {
+            document.getElementById('bookDetail').innerHTML = '<p class="text-red-600">Book not found.</p>';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${window.env.CATALOG_API_URL}/api/catalog/books/${bookId}`);
+            const book = await res.json();
+
+            if (!res.ok || !book.id) {
+                throw new Error("Book not found");
+            }
+
+            document.getElementById('bookDetail').innerHTML = `
+                <img src="${book.image_url || 'https://via.placeholder.com/200'}" alt="${book.name}" class="w-64 h-auto rounded shadow" />
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-3xl font-bold">${book.name}</h1>
+                    <p class="text-lg text-gray-600">by ${book.author}</p>
+                    <p class="text-md text-gray-500">Published: ${new Date(book.published_date).toLocaleDateString()}</p>
+                    <p class="text-2xl text-green-700 font-bold">$${Number(book.price).toFixed(2)}</p>
+                </div>
+            `;
+        } catch (err) {
+            document.getElementById('bookDetail').innerHTML = `<p class="text-red-600">Error loading book detail.</p>`;
+        }
+    }
+
+    loadBookDetail();
+</script>

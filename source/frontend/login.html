@@ -11,7 +11,7 @@
         <div class="flex items-center gap-3">
             <a 
                 class="text-2xl font-bold"
-                href="/index">Online Bookstore
+                href="/">Online Bookstore
             </a>
         </div>
 
@@ -64,7 +64,7 @@
             </form>
 
             <p class="text-center">
-                Don't have account?
+                Don"t have account?
                 <a href="/register" class="text-green-300">Register now</a>
             </p>
         </div>
@@ -74,32 +74,32 @@
 
 <script src="env.js"></script>
 <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const res = await fetch(`${window.env.USER_API_URL}/api/user/login`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                name: document.getElementById('username').value,
-                password: document.getElementById('password').value,
+                name: document.getElementById("username").value,
+                password: document.getElementById("password").value,
             })
         });
         const data = await res.json();
         
         if (res.ok) {
-            localStorage.setItem('userId', data.userId);
-            window.location.href = "index.html";
+            localStorage.setItem("userId", data.userId);
+            window.location.href = "/";
         } else {
             alert(data.error || "Login failed. Please try again.");
         }
     });
 
-    document.getElementById('accountButton').addEventListener('click', () => {
-        const userId = localStorage.getItem('userId');
+    document.getElementById("accountButton").addEventListener("click", () => {
+        const userId = localStorage.getItem("userId");
         if (userId) {
-            window.location.href = 'user.html';
+            window.location.href = "/user";
         } else {
-            window.location.href = 'login.html';
+            window.location.href = "/login";
         }
     });
 </script>

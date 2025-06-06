@@ -11,7 +11,7 @@
         <div class="flex items-center gap-3">
             <a 
                 class="text-2xl font-bold"
-                href="/index">Online Bookstore
+                href="/">Online Bookstore
             </a>
         </div>
 
@@ -47,12 +47,12 @@
 </html>
 
 <script>
-    document.getElementById('accountButton').addEventListener('click', () => {
-        const userId = localStorage.getItem('userId');
+    document.getElementById("accountButton").addEventListener("click", () => {
+        const userId = localStorage.getItem("userId");
         if (userId) {
-            window.location.href = 'user.html';
+            window.location.href = "/user";
         } else {
-            window.location.href = 'login.html';
+            window.location.href = "/login";
         }
     });
 </script>

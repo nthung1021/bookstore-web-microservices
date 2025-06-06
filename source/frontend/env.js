@@ -1,3 +1,3 @@
 window.env = {
-    USER_API_URL : 'https://bookstore-web-microservices.onrender.com'
+    USER_API_URL : 'https://bookstore-microservices-user-sevice.onrender.com'
 };

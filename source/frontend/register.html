@@ -9,7 +9,10 @@
     <!-- Header -->
     <header class="w-full flex h-16 items-center justify-between px-5 bg-green-400">
         <div class="flex items-center gap-3">
-            <span class="text-2xl font-bold">Online Bookstore</span>
+            <a 
+                class="text-2xl font-bold"
+                href="/index">Online Bookstore
+            </a>
         </div>
 
         <div>
@@ -101,7 +104,7 @@
         }
     });
 
-    document.getElementById('accountBtn').addEventListener('click', () => {
+    document.getElementById('accountButton').addEventListener('click', () => {
         const userId = localStorage.getItem('userId');
         if (userId) {
         window.location.href = 'user.html';

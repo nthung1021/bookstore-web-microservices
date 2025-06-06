@@ -60,10 +60,10 @@
         const grid = document.getElementById('bookGrid');
         grid.innerHTML = books.map(book => `
             <div class="bg-white rounded shadow-md p-4 flex flex-col">
-                <a href="/book?id=${book.id}">
+                <a href="/detail?id=${book.id}">
                     <img src="${book.image_url || 'https://via.placeholder.com/150'}" alt="${book.name}" class="h-48 w-full object-cover rounded mb-4">
                 </a>
-                <a href="/book?id=${book.id}" class="hover:underline">
+                <a href="/detail?id=${book.id}" class="hover:underline">
                     <h2 class="text-lg font-semibold mb-2">${book.name}</h2>
                 </a>
                 <p class="text-green-700 font-bold text-md">$${Number(book.price).toFixed(2)}</p>

@@ -24,9 +24,14 @@ async function register(req, res) {
 
     const { data, error } = await supabase
         .from('User')
-        .insert([{ username: name, password: hashedPassword }]);
+        .insert([{ username: name, password: hashedPassword }])
+        .select();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    if (!data || data.length === 0) {
+        return res.status(500).json({ error: 'User was not created properly' });
+    }
 
     res.status(201).json({ message: 'User registered', userId: data[0].id });
 }
@@ -49,7 +54,7 @@ async function login(req, res) {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: 'Invalid password' });
 
-    res.json({ message: 'Login successful', userId: user.id });   
+    res.status(200).json({ message: 'Login successful', userId: user.id });   
 }
 
 module.exports = { register, login };

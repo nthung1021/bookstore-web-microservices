@@ -2,4 +2,5 @@
 /register  /register.html  200
 /user      /user.html      200
 /account   /account.html   200
+/book      /detail.html    200
 /          /index.html     200

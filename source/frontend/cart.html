@@ -68,7 +68,7 @@
 
     async function placeOrder() {
         const userId = localStorage.getItem("userId");
-        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/cart`, {
+        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/from-cart`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId })

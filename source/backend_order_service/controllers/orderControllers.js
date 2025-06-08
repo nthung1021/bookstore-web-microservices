@@ -10,6 +10,23 @@ async function addToCart(req, res) {
     }
 }
 
+async function getCartItems(req, res) {
+    const { userId } = req.params;
+
+    try {
+        const result = await pool.query(`
+        SELECT b.id, b.name, b.price, b.cover_url
+        FROM Cart c
+        JOIN Book b ON c.book_id = b.id
+        WHERE c.user_id = $1
+        `, [userId]);
+
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 async function placeOrderFromCart(req, res) {
     const { userId } = req.body;
 
@@ -102,6 +119,7 @@ async function getOrderHistory(req, res) {
 
 module.exports = {
     addToCart,
+    getCartItems,
     placeOrderFromCart,
     placeOrderFromBook,
     getOrderHistory

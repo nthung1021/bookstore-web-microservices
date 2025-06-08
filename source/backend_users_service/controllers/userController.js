@@ -62,7 +62,7 @@ async function getUserById(req, res) {
 
     const { data, error } = await supabase
         .from('User')
-        .select('id, username') // You can add more fields if available
+        .select('id, username')
         .eq('id', id)
         .maybeSingle();
 

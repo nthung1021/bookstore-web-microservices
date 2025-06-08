@@ -1,4 +1,4 @@
-const pool = require('../database/db');
+const pool = require('../database/orderAWS');
 
 async function addToCart(req, res) {
     const { userId, bookId } = req.body;

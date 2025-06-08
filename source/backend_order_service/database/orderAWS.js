@@ -8,4 +8,13 @@ const pool = new Pool({
     database: process.env.PG_DATABASE,
 });
 
+pool.query('SELECT NOW()', (err, result) => {
+    if (err) {
+        console.error("Connection failed:", err.message);
+    } else {
+        console.log("Connected! Time:", result.rows[0]);
+        pool.end();
+    }
+});
+
 module.exports = pool;

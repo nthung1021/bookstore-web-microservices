@@ -3,4 +3,6 @@
 /user      /user.html      200
 /account   /account.html   200
 /detail    /detail.html    200
+/cart      /cart.html      200
+/order     /order.html     200
 /          /index.html     200

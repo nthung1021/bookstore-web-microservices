@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Bookstore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <!-- Header -->
+    <header class="w-full flex h-16 items-center justify-between px-5 bg-green-400">
+        <div class="flex items-center gap-3">
+            <a 
+                class="text-2xl font-bold"
+                href="/">Online Bookstore
+            </a>
+        </div>
+
+        <div>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+                href="/cart">Cart
+            </a>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                href="/order">Order
+            </a>
+            <button 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                id="accountButton">Account
+            </button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <h1 class="text-3xl font-bold mb-4 text-center">Your Orders</h1>
+    <div id="orders" class="max-w-3xl mx-auto bg-white p-4 rounded shadow"></div>
+</body>
+</html>
+
+<script src="env.js"></script>
+<script>
+    document.getElementById("accountButton").addEventListener("click", () => {
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+            window.location.href = "/user";
+        } else {
+            window.location.href = "/login";
+        }
+    });
+
+    async function loadOrders() {
+        const userId = localStorage.getItem("userId");
+        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/history/${userId}`);
+        const orders = await res.json();
+
+        const html = orders.map(order => `
+            <div class="mb-6 border-b pb-4">
+            <h2 class="text-xl font-semibold">Order #${order.id}</h2>
+            <p class="text-gray-600">Time: ${new Date(order.order_time).toLocaleString()}</p>
+            <p class="text-gray-600">Total: $${order.total_cost.toFixed(2)}</p>
+            <ul class="ml-4 list-disc">
+                ${order.items.map(item => `
+                <li>${item.quantity} x Book #${item.book_id} - $${item.book_price.toFixed(2)} each</li>
+                `).join("")}
+            </ul>
+            </div>
+        `).join("");
+
+        document.getElementById("orders").innerHTML = html || "<p>No past orders.</p>";
+    }
+
+    loadOrders();
+</script>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Bookstore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <!-- Header -->
+    <header class="w-full flex h-16 items-center justify-between px-5 bg-green-400">
+        <div class="flex items-center gap-3">
+            <a 
+                class="text-2xl font-bold"
+                href="/">Online Bookstore
+            </a>
+        </div>
+
+        <div>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+                href="/cart">Cart
+            </a>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                href="/order">Order
+            </a>
+            <button 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                id="accountButton">Account
+            </button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <h1 class="text-3xl font-bold mb-4 text-center">Your Cart</h1>
+    <div id="cartItems" class="max-w-2xl mx-auto bg-white p-4 rounded shadow"></div>
+    <div class="text-center mt-4">
+        <button onclick="placeOrder()" class="bg-green-600 text-white px-4 py-2 rounded">Place Order</button>
+    </div>
+</body>
+</html>
+
+<script src="env.js"></script>
+<script>
+    document.getElementById("accountButton").addEventListener("click", () => {
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+            window.location.href = "/user";
+        } else {
+            window.location.href = "/login";
+        }
+    });
+
+    async function loadCart() {
+        const userId = localStorage.getItem("userId");
+        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/cart/${userId}`);
+        const items = await res.json();
+
+        const html = items.map(item => `
+            <div class="flex justify-between border-b py-2">
+            <span>${item.name}</span>
+            <span>$${item.price.toFixed(2)}</span>
+            </div>
+        `).join("");
+
+        document.getElementById("cartItems").innerHTML = html || "<p>Your cart is empty.</p>";
+    }
+
+    async function placeOrder() {
+        const userId = localStorage.getItem("userId");
+        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/cart`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert("Order placed!");
+            location.reload();
+        } else {
+            alert(data.error || "Failed to place order.");
+        }
+    }
+
+    loadCart();
+</script>

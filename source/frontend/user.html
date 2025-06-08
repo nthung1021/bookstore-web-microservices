@@ -55,6 +55,7 @@
     });
 
     async function loadUserInfo() {
+        const userId = localStorage.getItem("userId");
         const res = await fetch(`${window.env.USER_API_URL}/api/user/${userId}`);
         if (!res.ok) {
             alert("Failed to fetch user data.");

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Bookstore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <!-- Header -->
+    <header class="w-full flex h-16 items-center justify-between px-5 bg-green-400">
+        <div class="flex items-center gap-3">
+            <a 
+                class="text-2xl font-bold"
+                href="/">Online Bookstore
+            </a>
+        </div>
+
+        <div>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+                href="/cart">Cart
+            </a>
+            <a 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                href="/order">Order
+            </a>
+            <button 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 ml-2"
+                id="accountButton">Account
+            </button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <div class="max-w-md mx-auto bg-white shadow-md p-6 rounded">
+    <h1 class="text-2xl font-bold mb-4 text-center">User Information</h1>
+    <div id="userInfo" class="space-y-2 text-lg text-gray-700"></div>
+    <button 
+        onclick="logout()"
+        class="mt-6 w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-500">Logout
+    </button>
+  </div>
+</body>
+</html>
+
+<script src="env.js"></script>
+<script>
+    document.getElementById("accountButton").addEventListener("click", () => {
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+            window.location.href = "/user";
+        } else {
+            window.location.href = "/login";
+        }
+    });
+
+    async function loadUserInfo() {
+        const res = await fetch(`${window.env.USER_API_URL}/api/user/${userId}`);
+        if (!res.ok) {
+            alert("Failed to fetch user data.");
+            return;
+        }
+
+        const user = await res.json();
+        document.getElementById("userInfo").innerHTML = `
+            <p><strong>ID:</strong> ${user.id}</p>
+            <p><strong>Name:</strong> ${user.username}</p>
+        `;
+    }
+
+    function logout() {
+        localStorage.removeItem("userId");
+        alert("Logged out successfully.");
+        window.location.href = "/login";
+    }
+
+    loadUserInfo();
+</script>

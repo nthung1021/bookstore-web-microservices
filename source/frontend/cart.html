@@ -59,7 +59,7 @@
         const html = items.map(item => `
             <div class="flex justify-between border-b py-2">
             <span>${item.name}</span>
-            <span>$${item.price.toFixed(2)}</span>
+            <span>$${Number(item.price).toFixed(2)}</span>
             </div>
         `).join("");
 

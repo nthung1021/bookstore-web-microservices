@@ -21,7 +21,7 @@ async function getCartItems(req, res) {
         const cartItems = await Cart.find({ user_id: userId });
         const bookData = await Promise.all(cartItems.map(async item => {
         try {
-            const response = await axios.get(`${CATALOG_URL}/api/book/${item.book_id}`);
+            const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${item.book_id}`);
             return {
                 book_id: item.book_id,
                 name: response.data.name,
@@ -44,9 +44,8 @@ async function placeOrderFromCart(req, res) {
         const cartItems = await Cart.find({ user_id: userId });
         if (!cartItems.length) return res.status(400).json({ error: 'Cart is empty' });
 
-        // Fetch book prices
         const orderItems = await Promise.all(cartItems.map(async item => {
-        const response = await axios.get(`${CATALOG_URL}/api/book/${item.book_id}`);
+        const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${item.book_id}`);
         const book = response.data;
         return {
             book_id: item.book_id,
@@ -75,7 +74,7 @@ async function placeOrderFromCart(req, res) {
 async function placeOrderFromBook(req, res) {
     const { userId, bookId, quantity } = req.body;
     try {
-        const response = await axios.get(`${CATALOG_URL}/api/book/${bookId}`);
+        const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${bookId}`);
         const book = response.data;
 
         const total_price = book.price * quantity;
@@ -98,7 +97,6 @@ async function placeOrderFromBook(req, res) {
     }
 }
 
-// Get order history
 async function getOrderHistory(req, res) {
     const { userId } = req.params;
     try {

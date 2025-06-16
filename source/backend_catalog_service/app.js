@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const connectMongoDB = require('./database/catalogMongo');
+
 const app = express();
 const catalogRoutes = require('./routes/catalogRoutes');
+
 app.use(cors({
     origin: process.env.WEB_URL
 }));
 app.use(express.json());
+
+connectMongoDB();
+
 app.use('/api/catalog', catalogRoutes);
 
 const PORT = process.env.PORT || 3002;

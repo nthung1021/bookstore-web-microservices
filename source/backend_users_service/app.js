@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const connectMongoDB = require('./database/userMongo.js');
+const connectMongoDB = require('./database/userMongo');
 
 const app = express();
 const userRoutes = require('./routes/userRoutes');

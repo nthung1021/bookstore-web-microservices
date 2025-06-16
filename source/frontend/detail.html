@@ -67,7 +67,7 @@
             const res = await fetch(`${window.env.CATALOG_API_URL}/api/catalog/books/${bookId}`);
             const book = await res.json();
 
-            if (!res.ok || !book.id) {
+            if (!res.ok || !book._id) {
                 throw new Error("Book not found");
             }
 

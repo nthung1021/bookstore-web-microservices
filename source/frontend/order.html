@@ -50,7 +50,7 @@
 
     async function loadOrders() {
         const userId = localStorage.getItem("userId");
-        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/history/${userId}`);
+        const res = await fetch(`${window.env.API_URL}/api/order/history/${userId}`);
         const orders = await res.json();
 
         const html = orders.map(order => `

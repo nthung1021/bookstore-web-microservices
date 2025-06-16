@@ -53,7 +53,7 @@
 
     async function loadCart() {
         const userId = localStorage.getItem("userId");
-        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/cart/${userId}`);
+        const res = await fetch(`${window.env.API_URL}/api/order/cart/${userId}`);
         const items = await res.json();
 
         const html = items.map(item => `
@@ -68,7 +68,7 @@
 
     async function placeOrder() {
         const userId = localStorage.getItem("userId");
-        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/from-cart`, {
+        const res = await fetch(`${window.env.API_URL}/api/order/from-cart`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId })

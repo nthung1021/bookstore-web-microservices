@@ -54,7 +54,7 @@
 
     async function loadBooks() {
         try {
-        const res = await fetch(`${window.env.CATALOG_API_URL}/api/catalog/books`);
+        const res = await fetch(`${window.env.API_URL}/api/catalog/books`);
         const books = await res.json();
 
         const grid = document.getElementById('bookGrid');
@@ -90,7 +90,7 @@
             return;
         }
 
-        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/cart/add`, {
+        const res = await fetch(`${window.env.API_URL}/api/order/cart/add`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, bookId })
@@ -113,7 +113,7 @@
             return;
         }
 
-        const res = await fetch(`${window.env.ORDER_API_URL}/api/order/from-book`, {
+        const res = await fetch(`${window.env.API_URL}/api/order/from-book`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, bookId, quantity: 1 })

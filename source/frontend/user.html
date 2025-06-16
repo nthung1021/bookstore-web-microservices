@@ -64,7 +64,7 @@
 
         const user = await res.json();
         document.getElementById("userInfo").innerHTML = `
-            <p><strong>ID:</strong> ${user.id}</p>
+            <p><strong>ID:</strong> ${user._id}</p>
             <p><strong>Name:</strong> ${user.username}</p>
         `;
     }

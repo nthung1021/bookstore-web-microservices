@@ -9,7 +9,6 @@
     },
     "author": "nthung1021",
     "dependencies": {
-        "@supabase/supabase-js": "^2.0.0",
         "cors": "^2.8.5",
         "express": "^4.18.2",
         "mongoose": "^8.15.2"

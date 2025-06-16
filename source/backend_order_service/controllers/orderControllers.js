@@ -85,7 +85,7 @@ async function placeOrderFromBook(req, res) {
 
         await BookOrder.create({
             order_id: order._id,
-            book_id,
+            book_id: bookId,
             book_price: book.price,
             quantity,
             total_price

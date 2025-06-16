@@ -4,17 +4,15 @@ const router = express.Router();
 
 const ORDER_SERVICE = process.env.ORDER_SERVICE;
 
-// Add to cart
-router.post('/cart', async (req, res) => {
+router.post('/cart/add', async (req, res) => {
     try {
-        const response = await axios.post(`${ORDER_SERVICE}/cart`, req.body);
+        const response = await axios.post(`${ORDER_SERVICE}/cart/add`, req.body);
         res.json(response.data);
     } catch (err) {
         res.status(err.response?.status || 500).json({ error: err.message });
     }
 });
 
-// Get cart items
 router.get('/cart/:userId', async (req, res) => {
     try {
         const response = await axios.get(`${ORDER_SERVICE}/cart/${req.params.userId}`);
@@ -24,7 +22,6 @@ router.get('/cart/:userId', async (req, res) => {
     }
 });
 
-// Place order from cart
 router.post('/from-cart', async (req, res) => {
     try {
         const response = await axios.post(`${ORDER_SERVICE}/from-cart`, req.body);
@@ -34,7 +31,6 @@ router.post('/from-cart', async (req, res) => {
     }
 });
 
-// Place order from a book
 router.post('/from-book', async (req, res) => {
     try {
         const response = await axios.post(`${ORDER_SERVICE}/from-book`, req.body);
@@ -44,7 +40,6 @@ router.post('/from-book', async (req, res) => {
     }
 });
 
-// Get order history
 router.get('/history/:userId', async (req, res) => {
     try {
         const response = await axios.get(`${ORDER_SERVICE}/history/${req.params.userId}`);

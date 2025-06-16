@@ -99,24 +99,48 @@ async function placeOrderFromBook(req, res) {
 
 async function getOrderHistory(req, res) {
     const { userId } = req.params;
+
     try {
         const orders = await Order.find({ user_id: userId }).sort({ order_time: -1 });
 
         const result = await Promise.all(orders.map(async order => {
-        const items = await BookOrder.find({ order_id: order._id });
-        return {
-            id: order._id,
-            order_time: order.order_time,
-            total_cost: order.total_cost,
-            items
-        };
+            const items = await BookOrder.find({ order_id: order._id });
+
+            const enrichedItems = await Promise.all(items.map(async item => {
+                try {
+                    const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${item.book_id}`);
+                    const book = response.data;
+                    return {
+                        book_id: item.book_id,
+                        book_name: book.name,
+                        book_price: item.book_price,
+                        quantity: item.quantity,
+                        total_price: item.total_price
+                    };
+                } catch (err) {
+                    return {
+                        book_id: item.book_id,
+                        book_name: "Unknown book",
+                        ...item.toObject()
+                    };
+                }
+            }));
+
+            return {
+                id: order._id,
+                order_time: order.order_time,
+                total_cost: order.total_cost,
+                items: enrichedItems
+            };
         }));
 
         res.json(result);
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: err.message });
     }
 }
+
 
 module.exports = {
     addToCart,

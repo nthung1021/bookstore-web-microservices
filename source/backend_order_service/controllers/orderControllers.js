@@ -1,9 +1,14 @@
-const pool = require('../database/orderAWS');
+const axios = require('axios');
+const Cart = require('../models/Cart');
+const Order = require('../models/Order');
+const BookOrder = require('../models/BookOrder');
+
+const CATALOG_URL = process.env.CATALOG_URL;
 
 async function addToCart(req, res) {
     const { userId, bookId } = req.body;
     try {
-        await pool.query('INSERT INTO Cart (user_id, book_id) VALUES ($1, $2)', [userId, bookId]);
+        await Cart.create({ user_id: userId, book_id: bookId });
         res.json({ message: 'Book added to cart' });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -12,16 +17,22 @@ async function addToCart(req, res) {
 
 async function getCartItems(req, res) {
     const { userId } = req.params;
-
     try {
-        const result = await pool.query(`
-        SELECT b.id, b.name, b.price, b.cover_url
-        FROM Cart c
-        JOIN Book b ON c.book_id = b.id
-        WHERE c.user_id = $1
-        `, [userId]);
-
-        res.json(result.rows);
+        const cartItems = await Cart.find({ user_id: userId });
+        const bookData = await Promise.all(cartItems.map(async item => {
+        try {
+            const response = await axios.get(`${CATALOG_URL}/api/book/${item.book_id}`);
+            return {
+                book_id: item.book_id,
+                name: response.data.name,
+                price: response.data.price,
+                cover_url: response.data.image_url
+            };
+        } catch (e) {
+            return { book_id: item.book_id, error: "Book not found" };
+        }
+        }));
+        res.json(bookData);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -29,37 +40,33 @@ async function getCartItems(req, res) {
 
 async function placeOrderFromCart(req, res) {
     const { userId } = req.body;
-
     try {
-        const cartItemsRes = await pool.query(`
-        SELECT c.book_id, b.price
-        FROM Cart c
-        JOIN Book b ON c.book_id = b.id
-        WHERE c.user_id = $1
-        `, [userId]);
+        const cartItems = await Cart.find({ user_id: userId });
+        if (!cartItems.length) return res.status(400).json({ error: 'Cart is empty' });
 
-        const cartItems = cartItemsRes.rows;
-        if (cartItems.length === 0) {
-        return res.status(400).json({ error: 'Cart is empty' });
-        }
+        // Fetch book prices
+        const orderItems = await Promise.all(cartItems.map(async item => {
+        const response = await axios.get(`${CATALOG_URL}/api/book/${item.book_id}`);
+        const book = response.data;
+        return {
+            book_id: item.book_id,
+            book_price: book.price,
+            quantity: 1,
+            total_price: book.price
+        };
+        }));
 
-        const totalCost = cartItems.reduce((sum, item) => sum + parseFloat(item.price), 0);
-        const orderRes = await pool.query(
-        'INSERT INTO "Order" (user_id, total_cost) VALUES ($1, $2) RETURNING id',
-        [userId, totalCost]
-        );
-        const orderId = orderRes.rows[0].id;
+        const total_cost = orderItems.reduce((sum, item) => sum + item.total_price, 0);
+        const order = await Order.create({ user_id: userId, total_cost });
 
-        const insertValues = cartItems.map((item, i) => `($1, $${i * 4 + 2}, $${i * 4 + 3}, 1, $${i * 4 + 4})`).join(',');
-        const flatValues = cartItems.flatMap(item => [item.book_id, item.price, item.price]);
+        await BookOrder.insertMany(orderItems.map(item => ({
+            order_id: order._id,
+            ...item
+        })));
 
-        await pool.query(
-        `INSERT INTO BookOrder (order_id, book_id, book_price, quantity, total_price) VALUES ${insertValues}`,
-        [orderId, ...flatValues]
-        );
+        await Cart.deleteMany({ user_id: userId });
 
-        await pool.query('DELETE FROM Cart WHERE user_id = $1', [userId]);
-        res.json({ message: 'Order placed from cart', orderId });
+        res.json({ message: 'Order placed from cart', order_id: order._id });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -68,50 +75,46 @@ async function placeOrderFromCart(req, res) {
 async function placeOrderFromBook(req, res) {
     const { userId, bookId, quantity } = req.body;
     try {
-        const bookRes = await pool.query('SELECT * FROM Book WHERE id = $1', [bookId]);
-        if (bookRes.rowCount === 0) {
-        return res.status(404).json({ error: 'Book not found' });
-        }
+        const response = await axios.get(`${CATALOG_URL}/api/book/${bookId}`);
+        const book = response.data;
 
-        const book = bookRes.rows[0];
-        const total = book.price * quantity;
+        const total_price = book.price * quantity;
+        const order = await Order.create({
+            user_id: userId,
+            total_cost: total_price
+        });
 
-        const orderRes = await pool.query(
-        'INSERT INTO "Order" (user_id, total_cost) VALUES ($1, $2) RETURNING id',
-        [userId, total]
-        );
-        const orderId = orderRes.rows[0].id;
+        await BookOrder.create({
+            order_id: order._id,
+            book_id,
+            book_price: book.price,
+            quantity,
+            total_price
+        });
 
-        await pool.query(
-        'INSERT INTO BookOrder (order_id, book_id, book_price, quantity, total_price) VALUES ($1, $2, $3, $4, $5)',
-        [orderId, bookId, book.price, quantity, total]
-        );
-
-        res.json({ message: 'Order placed', orderId });
+        res.json({ message: 'Order placed from book', order_id: order._id });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 }
 
+// Get order history
 async function getOrderHistory(req, res) {
     const { userId } = req.params;
     try {
-        const orderRes = await pool.query(`
-        SELECT o.*, 
-            json_agg(json_build_object(
-            'book_id', bo.book_id,
-            'price', bo.book_price,
-            'quantity', bo.quantity,
-            'total_price', bo.total_price
-            )) as items
-        FROM "Order" o
-        JOIN BookOrder bo ON o.id = bo.order_id
-        WHERE o.user_id = $1
-        GROUP BY o.id
-        ORDER BY o.order_time DESC
-        `, [userId]);
+        const orders = await Order.find({ user_id: userId }).sort({ order_time: -1 });
 
-        res.json(orderRes.rows);
+        const result = await Promise.all(orders.map(async order => {
+        const items = await BookOrder.find({ order_id: order._id });
+        return {
+            id: order._id,
+            order_time: order.order_time,
+            total_cost: order.total_cost,
+            items
+        };
+        }));
+
+        res.json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

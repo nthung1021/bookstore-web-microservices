@@ -5,9 +5,7 @@ const connectMongoDB = require('./database/orderMongo');
 const app = express();
 const orderRoutes = require('./routes/orderRoutes');
 
-app.use(cors({
-    origin: process.env.WEB_URL
-}));
+app.use(cors());
 app.use(express.json());
 
 connectMongoDB();

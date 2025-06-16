@@ -5,9 +5,7 @@ const connectMongoDB = require('./database/userMongo');
 const app = express();
 const userRoutes = require('./routes/userRoutes');
 
-app.use(cors({
-    origin: process.env.WEB_URL
-}));
+app.use(cors());
 app.use(express.json());
 
 connectMongoDB();

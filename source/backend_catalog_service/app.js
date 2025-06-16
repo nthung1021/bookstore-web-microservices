@@ -5,9 +5,7 @@ const connectMongoDB = require('./database/catalogMongo');
 const app = express();
 const catalogRoutes = require('./routes/catalogRoutes');
 
-app.use(cors({
-    origin: process.env.WEB_URL
-}));
+app.use(cors());
 app.use(express.json());
 
 connectMongoDB();

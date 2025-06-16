@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const supabase = require('../database/userSupabase');
+const User = require('../models/User');
 
 async function register(req, res) {
     const { name, password, confirmPassword } = req.body;
@@ -12,28 +12,19 @@ async function register(req, res) {
         return res.status(400).json({ error: 'Passwords do not match' });
     }
 
-    const { data: existingUser, error: userCheckError } = await supabase
-        .from('User')
-        .select('id')
-        .eq('username', name)
-        .maybeSingle();
+    try {
+        const existingUser = await User.findOne({ username: name });
+        if (existingUser) return res.status(400).json({ error: 'Username already taken' });
 
-    if (existingUser) return res.status(400).json({ error: 'Username already taken' });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username: name, password: hashedPassword });
+        const savedUser = await newUser.save();
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const { data, error } = await supabase
-        .from('User')
-        .insert([{ username: name, password: hashedPassword }])
-        .select();
-
-    if (error) return res.status(500).json({ error: error.message });
-
-    if (!data || data.length === 0) {
-        return res.status(500).json({ error: 'User was not created properly' });
+        res.status(201).json({ message: 'User registered', userId: savedUser._id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error while registering user' });
     }
-
-    res.status(201).json({ message: 'User registered', userId: data[0].id });
 }
 
 async function login(req, res) {
@@ -43,33 +34,32 @@ async function login(req, res) {
         return res.status(400).json({ error: 'Name and password are required' });
     }
 
-    const { data: user, error } = await supabase
-        .from('User')
-        .select('*')
-        .eq('username', name)
-        .maybeSingle();
+    try {
+        const user = await User.findOne({ username: name });
+        if (!user) return res.status(401).json({ error: 'Invalid username' });
 
-    if (!user) return res.status(401).json({ error: 'Invalid username' });
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) return res.status(401).json({ error: 'Invalid password' });
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ error: 'Invalid password' });
-
-    res.status(200).json({ message: 'Login successful', userId: user.id });   
+        res.status(200).json({ message: 'Login successful', userId: user._id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error while logging in' });
+    }
 }
 
 async function getUserById(req, res) {
     const { id } = req.params;
 
-    const { data, error } = await supabase
-        .from('User')
-        .select('id, username')
-        .eq('id', id)
-        .maybeSingle();
+    try {
+        const user = await User.findById(id).select('username _id');
+        if (!user) return res.status(404).json({ error: 'User not found' });
 
-    if (error) return res.status(500).json({ error: error.message });
-    if (!data) return res.status(404).json({ error: 'User not found' });
-
-    res.status(200).json(data);
+        res.status(200).json(user);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error while fetching user' });
+    }
 }
 
 module.exports = { register, login, getUserById };

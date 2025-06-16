@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const connectMongoDB = require('./database/userMongo.js');
+
 const app = express();
 const userRoutes = require('./routes/userRoutes');
+
 app.use(cors({
     origin: process.env.WEB_URL
 }));
 app.use(express.json());
+
+connectMongoDB();
+
 app.use('/api/user', userRoutes);
 
 const PORT = process.env.PORT || 3001;

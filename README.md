@@ -6,7 +6,7 @@ A simple website for selling books to readers, considered an exercise to build a
 
 - Frontend: HTML/CSS (Tailwind CSS) + Javascript
 - Backend: Node.js (for all services)
-- Database: PostgreSQL
+- Database: MongoDB
 
 ## Database
 

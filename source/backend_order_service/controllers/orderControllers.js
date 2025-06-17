@@ -3,7 +3,7 @@ const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const BookOrder = require('../models/BookOrder');
 
-const CATALOG_URL = process.env.CATALOG_URL;
+const API_URL = process.env.API_URL;
 
 async function addToCart(req, res) {
     const { userId, bookId } = req.body;
@@ -21,7 +21,7 @@ async function getCartItems(req, res) {
         const cartItems = await Cart.find({ user_id: userId });
         const bookData = await Promise.all(cartItems.map(async item => {
         try {
-            const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${item.book_id}`);
+            const response = await axios.get(`${API_URL}/api/catalog/books/${item.book_id}`);
             return {
                 book_id: item.book_id,
                 name: response.data.name,
@@ -45,7 +45,7 @@ async function placeOrderFromCart(req, res) {
         if (!cartItems.length) return res.status(400).json({ error: 'Cart is empty' });
 
         const orderItems = await Promise.all(cartItems.map(async item => {
-        const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${item.book_id}`);
+        const response = await axios.get(`${API_URL}/api/catalog/books/${item.book_id}`);
         const book = response.data;
         return {
             book_id: item.book_id,
@@ -74,7 +74,7 @@ async function placeOrderFromCart(req, res) {
 async function placeOrderFromBook(req, res) {
     const { userId, bookId, quantity } = req.body;
     try {
-        const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${bookId}`);
+        const response = await axios.get(`${API_URL}/api/catalog/books/${bookId}`);
         const book = response.data;
 
         const total_price = book.price * quantity;
@@ -108,7 +108,7 @@ async function getOrderHistory(req, res) {
 
             const enrichedItems = await Promise.all(items.map(async item => {
                 try {
-                    const response = await axios.get(`${CATALOG_URL}/api/catalog/books/${item.book_id}`);
+                    const response = await axios.get(`${API_URL}/api/catalog/books/${item.book_id}`);
                     const book = response.data;
                     return {
                         book_id: item.book_id,

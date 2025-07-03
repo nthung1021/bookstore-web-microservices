@@ -6,7 +6,7 @@ A simple website for selling books to readers, considered an exercise to build a
 
 - Frontend: HTML/CSS (Tailwind CSS) + Javascript
 - Backend: Node.js (for all services)
-- Database: MongoDB
+- Database: MongoDB 
 
 ## Database
 
@@ -60,5 +60,5 @@ A simple website for selling books to readers, considered an exercise to build a
 |  order_id   |  bigint  | primary key identity  |
 |  book_id    |  bigint  | primary key identity  |
 |  book_price |  float   | not null              |
-|  qunatity   |   int    | not null              |
+|  quantity   |   int    | not null              |
 | total_price |  float   | not null              |
